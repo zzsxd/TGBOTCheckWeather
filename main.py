@@ -1,15 +1,26 @@
-#Бот для получения погоды made by zzsxd
+#############################################
+#                created                    #
+#                  by                       #
+#                 zzsxd                     #
+#       TelegramBotCheckTheWeather          #
+#############################################
 import telebot
 import requests
 import json
+from telebot import types
 
-bot = telebot.TeleBot('6736692677:AAFLu-4SrE-rvh2WgrCliGvoSWCP7QaaXCI')
-API = 'f84ac7ee3309c7da133cba71e82865fe'
+bot = telebot.TeleBot('bot_api')
+API = 'openweathermap_api'
 
 @bot.message_handler(commands=['start'])
-
 def start(message):
-    bot.send_message(message.chat.id, 'Привет! Где ты живешь?')
+    bot.reply_to(message, 'Привет👋\nЯ WeatherBot🌤 - могу дать информацию о погоде в любом городе!\nВведите /creators - чтобы узнать информацию о создателе бота.')
+    bot.send_message(message.chat.id, 'Введите свой город, чтобы начать!')
+
+@bot.message_handler(commands=['creators'])
+def creators(message):
+    bot.reply_to(message, 'Создатель:\nzzsxd')
+    bot.send_message(message.chat.id, 'Введите свой город, чтобы начать!')
 
 @bot.message_handler(content_types=['text'])
 def get_weather(message):
@@ -17,9 +28,10 @@ def get_weather(message):
     res = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
     if res.status_code == 200:
         data = json.loads(res.text)
-        bot.reply_to(message, f"Сейчас погода: {data['main']['temp']}")
+        #print(f'{res.json()}')
+        bot.reply_to(message, f"🌤Погода🌤\n☀️Сейчас температура: {data['main']['temp']}\n🔥Ощущается как: {data['main']['feels_like']}\n🌨Минимальная температура: {data['main']['temp_min']}\n☀️Максимальная температура: {data['main']['temp_max']}\n💨Скорость ветра: {data['wind']['speed']}м/с")
     else:
-        bot.reply_to(message, 'Неправильно указан город')
+        bot.reply_to(message, '🚫Неправильно указан город🚫')
 
 
 bot.polling(none_stop=True)
